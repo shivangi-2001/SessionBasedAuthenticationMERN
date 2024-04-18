@@ -59,7 +59,7 @@ export default function Signup() {
         <CardBody className="overflow-hidden">
           <Tabs
             fullWidth
-            size="md"
+            size="lg"
             aria-label="Tabs form"
             radius="full"
             variant="light"
@@ -171,7 +171,7 @@ export default function Signup() {
                     <Button
                       type="submit"
                       fullWidth
-                      color="warning"
+                      color="danger"
                       variant="ghost"
                     >
                       Sign up

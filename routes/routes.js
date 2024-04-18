@@ -21,6 +21,7 @@ router.post('/register', async(req, res) => {
     }
 })
 
+
 router.post('/login', async(req, res) => {
     try {
         const { email, password } = req.body;
@@ -42,7 +43,6 @@ router.post('/login', async(req, res) => {
     }
 });
 
-
 const CheckCookiesAuthenticate = async (req, res, next) => {
     try {
         const session_id = req.cookies['_eid'];
@@ -58,11 +58,11 @@ const CheckCookiesAuthenticate = async (req, res, next) => {
         
         next(); 
     } catch (error) {
-        // Handle any errors that occur during authentication
         console.error("Authentication error:", error);
         return res.status(500).json({ error_message: "Internal Server Error" });
     }
 };
+
 
 router.get('/profile', CheckCookiesAuthenticate, async (req, res) => {
     try {
@@ -82,10 +82,12 @@ router.get('/profile', CheckCookiesAuthenticate, async (req, res) => {
 router.post('/logout', CheckCookiesAuthenticate, async(req, res) => {
     try {
         req.session.destroy();
+        res.clearCookie()
         return res.status(200).json({ message: "Successfully logged out" });
     } catch (error) {
         return HandleError(error, res);
     }
 });
+
 
 module.exports = router;

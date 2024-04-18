@@ -1,14 +1,24 @@
 import React from "react";
 import HeaderTemp from "./Components/Navbar";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  useNavigate,
+  redirect,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Signup from "./Authentictaion/Signup";
 import Login from "./Authentictaion/Login";
 import Profile from "./Authentictaion/Profile";
+import { useSelector } from "react-redux";
 
 export default function App() {
-
   const queryClient = new QueryClient();
+
+  const isAuth = useSelector((state) => state.auth);
+
+  console.log(isAuth)
   const Layout = () => {
     return (
       <>
@@ -25,20 +35,19 @@ export default function App() {
       element: <Layout />,
       children: [
         {
-          path: "/login",
-          element: <Login/>
+          path: "/profile",
+          element: <Profile />,
         },
         {
-          path: "/profile",
-          element:<Profile />,
-        }
+          path: "/signup",
+          element: <Signup />,
+        },
+        {
+          path: "/login",
+          element: <Login />,
+        },
       ],
     },
-    {
-      path: "/signup",
-      element:<Signup />,
-    }
-    
   ]);
 
   return <RouterProvider router={router} />;

@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import { useLazyProfileQuery } from "../services/Auth";
-import { useDispatch } from "react-redux";
-import { setUserInfo, unsetUserInfo } from "../features/userSlice";
 import {
   Tabs,
   Tab,
@@ -12,8 +10,12 @@ import {
   CardBody,
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserInfo } from "../features/userSlice";
 
 export default function Profile() {
+  const isAuth = useSelector(state => state.auth)
+  const dispatch = useDispatch()
   const [error, setError] = React.useState("");
   const [loggedProfile, { isError, isSuccess }] = useLazyProfileQuery();
   const navigate = useNavigate();
@@ -26,22 +28,35 @@ export default function Profile() {
   // Fetch profile data
   useEffect(() => {
     const fetchData = async () => {
+      const data = await loggedProfile();
+      console.log({
+        email: data['data'].email,
+        full_name: data['data'].full_name,
+      })
       try {
-        const data = await loggedProfile();
         if (data && isSuccess) {
-          console.log(data);
           setUserData({
             email: data['data'].email,
             name: data['data'].full_name,
           });
+          dispatch(setUserInfo({
+            email: data['data'].email,
+            full_name: data['data'].full_name,
+          }))
         }
+        if(data['status'] === 'rejected') setError(data['data'])
       } catch (error) {
         console.error("Error fetching profile data:", error);
       }
     };
-
-    fetchData();
-  }, [loggedProfile, isSuccess]);
+    
+    if(isAuth.auth){
+      fetchData();
+    }
+    else{
+      navigate("/login");
+    }
+  }, [loggedProfile, isSuccess, dispatch]);
 
   // Redirect to login page if authentication fails
   useEffect(() => {

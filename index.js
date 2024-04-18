@@ -16,7 +16,7 @@ var store = new MongoDBStore({
   uri: process.env.DB_URL,
   collection: "websiteSession",
   expiresKey: "_exp_",
-  expires: 1000 * 60 * 60,
+  expires: 1000 * 60 * 10,
 });
 
 DatabaseConnection(process.env.DB_URL);
@@ -40,9 +40,10 @@ store.on("error", function (error) {
 
 app.use(
   session({
-    secret: "This is a secret",
+    secret: process.env.SESSION_SECRET,
     cookie: {
-      maxAge: 1000 * 60 * 60,
+      maxAge: 1000 * 60 * 10,
+      sameSite: 'strict'
     },
     store: store,
     resave: true,

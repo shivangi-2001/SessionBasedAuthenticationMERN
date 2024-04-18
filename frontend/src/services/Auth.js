@@ -42,10 +42,19 @@ export const Authentication = createApi({
           }
         }
       }
+    }),
+
+    logout: builder.mutation({
+      query: () => {
+        return {
+          url: 'logout',
+          method: 'POST'
+        }
+      }
     })
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useRegisterMutation, useLoginMutation, useLazyProfileQuery } = Authentication;
+export const { useRegisterMutation, useLoginMutation, useLazyProfileQuery, useLogoutMutation } = Authentication;

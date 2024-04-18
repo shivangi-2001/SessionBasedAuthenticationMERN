@@ -10,14 +10,24 @@ import {
 } from "@nextui-org/react";
 import { useLoginMutation } from "../services/Auth";
 import { useNavigate } from "react-router-dom";
+import { setAuth } from "../features/authSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { unsetUserInfo } from "../features/userSlice";
+
 
 export default function Login() {
+  const isAuth = useSelector(state => state.auth)
+
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState({ error_message: "" });
-  const [loginAuth, {isSuccess}] = useLoginMutation();
+  const [loginAuth] = useLoginMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
+  
+  
   const HandleLoginSubmit = async (e) => {
     e.preventDefault();
     var input_data = { email, password };
@@ -25,6 +35,10 @@ export default function Login() {
     const res = await loginAuth(input_data);
     if (res.data) {
       console.log(res.data)
+      dispatch(setAuth({
+        auth: true
+      }))
+      dispatch(unsetUserInfo({email:"",  full_name: ""}))
       navigate('/profile')
     }
     if (res.error) {
@@ -32,21 +46,29 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    if(isAuth.auth){
+      navigate('/profile')
+    }
+  })
+ 
+ 
+  
 
   return (
     <div className="flex flex-col items-center mt-36 justify-center">
       <Card className="w-[440px] bg-transparent border-3 border-slate-800 p-2">
-        <CardBody className="overflow-hidden">
+        <CardBody className="overflow-hidden text-white">
           <Tabs
             fullWidth
-            size="md"
+            size="lg"
             aria-label="Tabs form"
             radius="full"
             variant="light"
             color="warning"
-            className="border-0"
+            className="border-0 "
           >
-            <Tab key="login" title="Login" className=" text-warning-400">
+            <Tab key="login" title="Login" >
               {error.error_message ? (
                 <Button
                   fullWidth
@@ -91,7 +113,7 @@ export default function Login() {
                   <Button
                     type="submit"
                     fullWidth
-                    color="warning"
+                    color="danger"
                     variant="ghost"
                   >
                     Login

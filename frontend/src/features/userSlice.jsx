@@ -2,20 +2,20 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   email: "",
-  name: "",
+  full_name: "",
 }
 
 export const userSlice = createSlice({
-  name: 'user_info',
+  name: 'user',
   initialState,
   reducers: {
     setUserInfo: (state, action) => {
       state.email = action.payload.email
-      state.name = action.payload.name
+      state.full_name = action.payload.full_name
     },
     unsetUserInfo: (state, action) => {
       state.email = action.payload.email
-      state.name = action.payload.name
+      state.full_name = action.payload.full_name
     },
   }
 })
