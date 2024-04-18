@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Tabs,
   Tab,
@@ -15,7 +15,7 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState({ error_message: "" });
-  const [loginAuth] = useLoginMutation();
+  const [loginAuth, {isSuccess}] = useLoginMutation();
   const navigate = useNavigate();
 
   const HandleLoginSubmit = async (e) => {
@@ -24,13 +24,14 @@ export default function Login() {
 
     const res = await loginAuth(input_data);
     if (res.data) {
-      console.log(res.data);
-      // navigate("/profile");
+      console.log(res.data)
+      navigate('/profile')
     }
     if (res.error) {
       setError({ error_message: res.error["data"].error_message });
     }
   };
+
 
   return (
     <div className="flex flex-col items-center mt-36 justify-center">

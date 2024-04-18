@@ -1,24 +1,106 @@
-import React from "react";
-import { Card, CardHeader, CardBody, Image } from "@nextui-org/react";
+import React, { useEffect } from "react";
+import { useLazyProfileQuery } from "../services/Auth";
+import { useDispatch } from "react-redux";
+import { setUserInfo, unsetUserInfo } from "../features/userSlice";
+import {
+  Tabs,
+  Tab,
+  Input,
+  Link,
+  Button,
+  Card,
+  CardBody,
+} from "@nextui-org/react";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
+  const [error, setError] = React.useState("");
+  const [loggedProfile, { isError, isSuccess }] = useLazyProfileQuery();
+  const navigate = useNavigate();
+
+  const [userData, setUserData] = React.useState({
+    email: "",
+    name: "",
+  });
+
+  // Fetch profile data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await loggedProfile();
+        if (data && isSuccess) {
+          console.log(data);
+          setUserData({
+            email: data['data'].email,
+            name: data['data'].full_name,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchData();
+  }, [loggedProfile, isSuccess]);
+
+  // Redirect to login page if authentication fails
+  useEffect(() => {
+    if (isError) {
+      navigate("/login");
+    }
+  }, [isError]);
+
   return (
-    <div className="flex justify-center items-center mt-36">
-       <Card className="py-4">
-      <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-        <p className="text-tiny uppercase font-bold">Daily Mix</p>
-        <small className="text-default-500">12 Tracks</small>
-        <h4 className="font-bold text-large">Frontend Radio</h4>
-      </CardHeader>
-      <CardBody className="overflow-visible py-2">
-        <Image
-          alt="Card background"
-          className="object-cover rounded-xl"
-          src="/vite.svg"
-          width={270}
-        />
-      </CardBody>
-    </Card>
+    <div className="flex flex-col items-center mt-36 justify-center">
+      <Card className="w-[440px] bg-transparent border-3 border-slate-800 p-2">
+        <CardBody className="overflow-hidden">
+          <Tabs
+            fullWidth
+            size="md"
+            aria-label="Tabs form"
+            radius="full"
+            variant="bordered"
+            color="primary"
+            className="border-0"
+          >
+            <Tab key="Profile" title="PROFILE">
+              {error ? (
+                <Button
+                  fullWidth
+                  isDisabled
+                  variant="flat"
+                  color="danger"
+                  className="my-4 border-0"
+                >
+                  {error}
+                </Button>
+              ) : (
+                ""
+              )}
+              <form className="flex flex-col gap-4">
+                <Input
+                  label="Name"
+                  placeholder="Enter your name"
+                  type="text"
+                  variant="bordered"
+                  className="text-white"
+                  value={userData.email}
+                  isDisabled
+                />
+                <Input
+                  label="Email"
+                  placeholder="Enter your email"
+                  type="email"
+                  className="text-white"
+                  variant="bordered"
+                  value={userData.name}
+                  isDisabled
+                />
+              </form>
+            </Tab>
+          </Tabs>
+        </CardBody>
+      </Card>
     </div>
   );
 }

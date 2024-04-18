@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // Define a service using a base URL and expected endpoints
 export const Authentication = createApi({
   reducerPath: "Authentication",
-  baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}`, credentials: "include" }),
   endpoints: (builder) => ({
     register: builder.mutation({
       query: (user) => {
@@ -30,10 +30,22 @@ export const Authentication = createApi({
           }
         }
       }
+    }),
+
+    profile: builder.query({
+      query: () =>{
+        return {
+          url: 'profile',
+          method: 'GET',
+          headers: {
+            "Content-type": "application/json",
+          }
+        }
+      }
     })
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useRegisterMutation, useLoginMutation } = Authentication;
+export const { useRegisterMutation, useLoginMutation, useLazyProfileQuery } = Authentication;
