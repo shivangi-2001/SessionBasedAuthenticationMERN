@@ -40,10 +40,11 @@ store.on("error", function (error) {
 
 app.use(
   session({
+    name: "_eid",
     secret: process.env.SESSION_SECRET,
     cookie: {
       maxAge: 1000 * 60 * 10,
-      sameSite: 'strict'
+      httpOnly: false
     },
     store: store,
     resave: true,

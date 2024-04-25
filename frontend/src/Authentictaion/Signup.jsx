@@ -38,8 +38,8 @@ export default function Signup() {
     if (InputData.password !== InputData.confirm_password)
       setError({ error_message: "Password do not match" });
     const res = await register(InputData);
-    console.log(res)
     if (res.data) {
+      alert("Sucessfully created the Account")
       navigate("/login");
     }
     if (res.error['data']) {

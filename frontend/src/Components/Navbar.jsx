@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useEffect } from "react";
 import {
   Navbar,
   NavbarBrand,
@@ -10,39 +10,38 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
-import { useLogoutMutation } from "../services/Auth";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { unsetUserInfo } from "../features/userSlice";
-import { unsetAuth } from "../features/authSlice";
+import Cookies from "universal-cookie";
 
 export default function HeaderTemp() {
-  const isAuth = useSelector(state =>  state.auth)
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [count, setCount] = React.useState(0);
+  const [cookies, setCookies] = React.useState("");
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
   const menuItems = ["profile", "dashboard"];
-  const [logout, { error }] = useLogoutMutation();
 
+  const fetchCookies = async () => {
+    const cookiesID = new Cookies({ path: "/" });
+    let cookie_id = cookiesID.get("_eid");
+    setCookies(cookie_id);
+  };
+  useEffect(() => {
+    setCount(count + 1);
+    console.log("render", count, cookies);
+    fetchCookies(); // Fetch cookies on component mount
+  }, []);
 
-
-  const HandleLogout = useCallback(
-    async (e) => {
-      e.preventDefault();
-      try {
-        await logout();
-        dispatch(unsetAuth({auth:false}))
-        dispatch(unsetUserInfo({ email: "", name: "" }));
-        document.cookie =
-          "_eid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        navigate("/login");
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-    },
-    [dispatch, logout, navigate]
-  );
+  const handleLogout = () => {
+    const cookiesID = new Cookies({ path: "/" });
+    cookiesID.remove("_eid");
+    setCookies("");
+    dispatch(unsetUserInfo({ email: "", full_name: "" }));
+    navigate("/login");
+  };
 
   return (
     <Navbar
@@ -89,30 +88,18 @@ export default function HeaderTemp() {
 
       <NavbarContent justify="end">
         <NavbarItem className="flex">
-        {/* <Button
-              type="button"
-              className="btn"
-              variant="ghost"
-              color="danger"
-              onClick={HandleLogout}
-            >
-              Logout
-            </Button>
-            <Link href="/login" className="text-white">
-              Login
-            </Link> */}
-          {isAuth.auth ? (
+          {cookies ? (
             <Button
               type="button"
               className="btn"
               variant="ghost"
               color="danger"
-              onClick={HandleLogout}
+              onClick={handleLogout} // Call handleLogout when logout button is clicked
             >
               Logout
             </Button>
           ) : (
-            <Link href="/login"  color="success" variant="flat" className="text-white">
+            <Link href="/login" className="text-white">
               Login
             </Link>
           )}

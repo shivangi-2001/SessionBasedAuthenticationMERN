@@ -10,50 +10,33 @@ import {
 } from "@nextui-org/react";
 import { useLoginMutation } from "../services/Auth";
 import { useNavigate } from "react-router-dom";
-import { setAuth } from "../features/authSlice";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { unsetUserInfo } from "../features/userSlice";
 
 
 export default function Login() {
-  const isAuth = useSelector(state => state.auth)
-
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState({ error_message: "" });
+  const [error, setError] = React.useState("");
+ 
   const [loginAuth] = useLoginMutation();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
 
-  
-  
+
   const HandleLoginSubmit = async (e) => {
     e.preventDefault();
-    var input_data = { email, password };
-
-    const res = await loginAuth(input_data);
-    if (res.data) {
-      console.log(res.data)
-      dispatch(setAuth({
-        auth: true
-      }))
-      dispatch(unsetUserInfo({email:"",  full_name: ""}))
-      navigate('/profile')
-    }
-    if (res.error) {
-      setError({ error_message: res.error["data"].error_message });
+    try {
+      const res = await loginAuth({ email, password });
+      if (res.data) {
+        navigate("/profile");
+      } else if (res.error) {
+        console.log()
+        setError(res.error['data'].error_message);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
     }
   };
-
-  useEffect(() => {
-    if(isAuth.auth){
-      navigate('/profile')
-    }
-  })
- 
- 
   
+
 
   return (
     <div className="flex flex-col items-center mt-36 justify-center">
@@ -69,7 +52,7 @@ export default function Login() {
             className="border-0 "
           >
             <Tab key="login" title="Login" >
-              {error.error_message ? (
+              {error ? (
                 <Button
                   fullWidth
                   color="danger"
@@ -77,7 +60,7 @@ export default function Login() {
                   className="my-3"
                   isDisabled
                 >
-                  {error.error_message}
+                  {error}
                 </Button>
               ) : (
                 ""

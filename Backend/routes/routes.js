@@ -11,6 +11,7 @@ router.post('/register', async(req, res) => {
         if(!full_name||!email||!password) return res.status(400).json({error_message: "All fields are required"})
         if(password !== confirm_password) return res.status(400).json({error_message: "Password do not match"})
         const validated = Accounts.validate(req.body)
+    
         if(validated){
             const new_user = await Accounts({full_name, email, password})
             await new_user.save()
@@ -28,15 +29,13 @@ router.post('/login', async(req, res) => {
         if (!email || !password) return res.status(400).json({ error_message: "All fields are required" });
   
         let user = await Accounts.findOne({ email: email });
-        if (!user) return res.status(400).json({ error_message: "Invalid Credentials" });
-
+        if (!user) return res.status(400).json({ error_message: "Email is not register" });
         let isMatch = await bcrypt.compare(password, user.password)
         if(!isMatch) return res.status(400).json({ error_message: "Invalid Credentials" });
         
         req.session._email = user.email;
-        res.cookie('_eid', req.session.id);
 
-        return res.status(200).json({ message: "Your login is done", data: req.session.id });
+        return res.status(200).json({ message: "Your login is done" });
   
     } catch (error) {
         return HandleError(error, res);
@@ -45,10 +44,10 @@ router.post('/login', async(req, res) => {
 
 const CheckCookiesAuthenticate = async (req, res, next) => {
     try {
-        const session_id = req.cookies['_eid'];
-        if (!session_id) return res.status(401).json({ error_message: "Unauthorized: Please log in again" });
+        // const session_id = req.cookies['_eid'];
+        // if (!session_id) return res.status(401).json({ error_message: "Unauthorized: Please log in again" });
         
-        if (session_id !== req.sessionID) return res.status(400).json({ error_message: "Session ID mismatch" });
+        // if (session_id !== req.sessionID) return res.status(400).json({ error_message: "Session ID mismatch" });
         
         const userEmail = req.session['_email'];
         if (!userEmail) return res.status(400).json({ error_message: "User email not found in session" });
@@ -64,7 +63,7 @@ const CheckCookiesAuthenticate = async (req, res, next) => {
 };
 
 
-router.get('/profile', CheckCookiesAuthenticate, async (req, res) => {
+router.get('/profile', async (req, res) => {
     try {
         const userEmail = req.session['_email'];
         const currentUser = await Accounts.findOne({ email: userEmail });

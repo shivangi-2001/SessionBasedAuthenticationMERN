@@ -1,54 +1,38 @@
-import React from "react";
-import HeaderTemp from "./Components/Navbar";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Outlet,
-  useNavigate,
-  redirect,
-} from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { createBrowserRouter, BrowserRouter, Routes,Route,  Outlet, Navigate } from "react-router-dom";
+import Cookies from "universal-cookie";
 import Signup from "./Authentictaion/Signup";
 import Login from "./Authentictaion/Login";
 import Profile from "./Authentictaion/Profile";
-import { useSelector } from "react-redux";
+
+const Layout = () => (
+  <>
+    <Outlet />
+  </>
+);
 
 export default function App() {
-  const queryClient = new QueryClient();
+  const [cookies, setCookies] = useState("");
 
-  const isAuth = useSelector((state) => state.auth);
-
-  console.log(isAuth)
-  const Layout = () => {
-    return (
-      <>
-        <HeaderTemp />
-        <QueryClientProvider client={queryClient}>
-          <Outlet />
-        </QueryClientProvider>
-      </>
-    );
+  const fetchCookies = async () => {
+    const cookies = new Cookies({ path: "/" });
+    let cookie_id = cookies.get("_eid");
+    setCookies(cookie_id);
   };
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
-        {
-          path: "/profile",
-          element: <Profile />,
-        },
-        {
-          path: "/signup",
-          element: <Signup />,
-        },
-        {
-          path: "/login",
-          element: <Login />,
-        },
-      ],
-    },
-  ]);
+  useEffect(() => {
+    fetchCookies(); // Fetch cookies on component mount
+  }, []);
 
-  return <RouterProvider router={router} />;
+
+  return(
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route path="signup" element={<Signup />} />
+            <Route path="profile" element={<Profile/>} />
+            <Route path="login" element={!cookies ? <Login /> : <Navigate to="/profile" />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+  )
 }
